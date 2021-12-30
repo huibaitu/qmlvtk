@@ -17,6 +17,9 @@
 #include <QQuickWindow>
 #include <QTimer>
 #include <QUrl>
+#include <QDir>
+
+#include "config.h"
 
 int main(int argc, char* argv[])
 {
@@ -26,9 +29,16 @@ int main(int argc, char* argv[])
 
   QGuiApplication app(argc, argv);
  
+  QDir vtkqmlDir(VTK_QML_DIR);
+  
+	 
   QQmlApplicationEngine engine;
-  engine.addImportPath("D:/Project/vtk/build-master/lib/qml/Release");
-  qDebug() << "QML2_IMPORT_PATH:" << engine.importPathList();
+#ifdef _DEBUG
+  engine.addImportPath(vtkqmlDir.absoluteFilePath("Debug"));
+#else
+  engine.addImportPath(vtkqmlDir.absoluteFilePath("Release"));
+#endif // _DEBUG
+
   engine.load(QUrl("qrc:///qmlvtk.qml"));
  
   QObject* topLevel = engine.rootObjects().value(0);
@@ -37,7 +47,8 @@ int main(int argc, char* argv[])
   window->show();
  
   // Fetch the QQuick window using the standard object name set up in the constructor
-  QQuickVTKRenderItem* qquickvtkItem = topLevel->findChild<QQuickVTKRenderItem*>("ConeView");
+  auto* qquickObject = topLevel->findChild<QObject*>("ConeView");
+  auto* qquickvtkItem = dynamic_cast<QQuickVTKRenderItem*>(qquickObject);
  
   // Create a cone pipeline and add it to the view
   vtkNew<vtkActor> actor;

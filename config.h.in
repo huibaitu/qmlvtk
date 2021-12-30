@@ -1,0 +1,3 @@
+#ifndef VTK_QML_DIR
+#define VTK_QML_DIR "@VTK_QML_DIR@"
+#endif
